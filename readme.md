@@ -84,7 +84,7 @@
         ...
     };
 
-    module/exports = [serverConfig, clientConfig]
+    module.exports = [serverConfig, clientConfig]
 </pre>
 以下为中文简略说明：
 只是想着能应用于 服务端渲染 与 客户端渲染 的同时，客户端渲染 的一方面上，希望可以通过Webpack2的import来实现 Code Splitting（代码分离）， 但目前会有一个问题。
