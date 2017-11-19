@@ -1,14 +1,14 @@
 {
   "name": "react-dynamic-router-loader",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "reactjs code splitting,webpack2 loader",
   "main": "index.js",
   "devDependencies": {
     "path": "^0.12.7"
   },
   "repository": "https://github.com/szjyp226/react-dynamic-router-loader",
-  "author": "",
-  "license": "ISC",
+  "author": "szjyp226",
+  "license": "MIT",
   "keywords": [
     "react-dynamic-router-loader",
     "webpack2 loader",
