@@ -17,14 +17,14 @@
     // ./components/loading.jsx
     import React from 'react';
 
-    const _AsyncComponent = (loaderComponent, callback) => (
+    const _AsyncComponent = (loaderComponent, loadingComponent, cacheComponent) => (
         class _AsyncComponent extends React.Component {
             state = {
                 Component: null
             }
 
             async componentWillMount() {
-                let Component = await loaderComponent();
+                let Component = cacheComponent || await loaderComponent();
 
                 this.setState({
                     Component
@@ -36,7 +36,7 @@
 
                 return (Component) ? 
                             &lt;Component {...this.props} /&gt; : 
-                            callback();
+                            loadingComponent();
             }
         }
     );
@@ -92,3 +92,7 @@
 就是会遇到： <font color="red">Warning: XXX did not match. Server</font>的情况，视情况整个思路可能也都是存在一定问题的。
 <br/>
 有待改进（Hope to improve）
+
+----------------------------------------------
+2017-11-23：
+因服务端渲染导致的问题 现已解决。通过判定cacheComponent != null 来得到初始化render来解决（resolve) 问题。
