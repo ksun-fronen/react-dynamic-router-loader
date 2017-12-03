@@ -32,8 +32,9 @@ module.exports = function (content) {
     var rootPath = this.resourcePath;
     var aliasList = (this.options.resolve || {}).alias || {};
     var currentPreRenderModel = processPreRender(content, true);
-    var replaceRegComponent = /component\s*=\s*\{(require|import)\(\s*(\/\*[^(\*\/)]*\*\/[^(\*\/)]\s*)*[\'\"]([^'")]*)[\'\"]\s*\);*\}/ig;
-    var replaceRegRequire = /(require|import)\(\s*(\/\*[^(\*\/)]*\*\/[^(\*\/)]\s*)*[\'\"]([^'")]*)[\'\"]\s*\);*/;
+    var replaceRegComponent = /component\s*=\s*\{(require|import)\(\s*\n*\s*(\/\*.*?\*\/\s*)*[\'\"]([^'")]*)[\'\"]\s*\);*}/ig;
+    var replaceRegRequire = /(require|import)\(\s*\n*\s*(\/\*.*?\*\/\s*)*[\'\"]([^'")]*)[\'\"]\s*\);*/;
+    var importOptionsRegex = /\/\*(.{0,}?)\*\//ig;
     var data = (content.match(replaceRegComponent) || []);
     var moduleName = (options.asyncDefaultComponent && path.join(optionsContext, options.asyncDefaultComponent).replace(/\\/ig, '/') || path.join(__dirname, './asyncComponent.jsx').replace(/\\/ig, '/'));
 
@@ -57,6 +58,13 @@ module.exports = function (content) {
         var loadContent = '';
         var contentRequireModule = requireString.replace(replaceRegRequire, '$3');
 
+        var importOptions = (componentPropString.match(importOptionsRegex) || []);
+        var loadingComponentPath = importOptions.filter(function (x) {
+            return x.indexOf('loadingComponentPath') >= 0
+        })[0];
+
+        loadingComponentPath = (/loadingComponentPath\s*:\s*["']{1}(.*?)(["']{1}|(\*\/))/ig.exec(loadingComponentPath) || [])[1];
+        loadingComponentPath = loadingComponentPath || moduleName;
         temp = contentRequireModule;
 
         if (!temp) {
@@ -93,10 +101,10 @@ module.exports = function (content) {
         }
 
         var preRenderCode = (cacheComponent[absPath] && cacheComponent[absPath].preRenderCode) || processPreRender(loadContent).preRenderCode;
-
         //替换为webpack2 的 import 变为动态载入
         var importString = requireString.replace('require', 'import');
-        content = content.replace(requireString, `require('${moduleName}')(() => ${importString},() => { ${preRenderCode} }, (__webpack_modules__[require.resolveWeak('${contentRequireModule}')] && __webpack_require__(require.resolveWeak('${contentRequireModule}'))) )`)
+        content = content.replace(requireString, `require('${loadingComponentPath}')(() => ${importString},() => { ${preRenderCode} }, (__webpack_modules__[require.resolveWeak('${contentRequireModule}')] && __webpack_require__(require.resolveWeak('${contentRequireModule}'))) )`)
     }
+
     return content;
 };
